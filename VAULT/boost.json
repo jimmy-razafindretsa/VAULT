@@ -10,6 +10,7 @@
         "fortify-development",
         "laravel-best-practices",
         "passport-development",
+        "socialite-development",
         "wayfinder-development",
         "pest-testing",
         "inertia-react-development",
