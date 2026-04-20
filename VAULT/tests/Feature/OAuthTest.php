@@ -29,7 +29,7 @@ test('oauth callback creates user and logs in', function () {
 
     $response = $this->get(route('oauth.callback', ['provider' => 'github']));
 
-    $response->assertRedirect(route('dashboard'));
+    $response->assertRedirect('/dashboard');
     $this->assertAuthenticated();
 
     $user = User::where('email', 'oauth-user@example.com')->first();

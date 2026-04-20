@@ -43,6 +43,6 @@ class OAuthController extends Controller
 
         Auth::login($user);
 
-        return redirect()->intended(route('dashboard', false));
+        return redirect()->intended('/dashboard');
     }
 }
