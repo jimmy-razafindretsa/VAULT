@@ -5,6 +5,32 @@ import { initializeTheme } from '@/hooks/use-appearance';
 import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
 import SettingsLayout from '@/layouts/settings/layout';
+import {
+    browserSupportsWebAuthn,
+    startAuthentication,
+    startRegistration,
+} from '@simplewebauthn/browser';
+import axios from 'axios';
+
+declare global {
+    interface Window {
+        browserSupportsWebAuthn: typeof browserSupportsWebAuthn;
+        startAuthentication: typeof startAuthentication;
+        startRegistration: typeof startRegistration;
+        axios: typeof axios;
+    }
+}
+
+window.browserSupportsWebAuthn = browserSupportsWebAuthn;
+window.startAuthentication = startAuthentication;
+window.startRegistration = startRegistration;
+window.axios = axios;
+
+// Configure axios for Laravel CSRF protection
+window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+window.axios.defaults.withCredentials = true;
+window.axios.defaults.withXSRFToken = true;
+
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 

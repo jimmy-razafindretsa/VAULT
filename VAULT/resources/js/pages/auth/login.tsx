@@ -1,4 +1,4 @@
-import { Form, Head } from '@inertiajs/react';
+import { Form, Head, router } from '@inertiajs/react';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import TextLink from '@/components/text-link';
@@ -12,7 +12,12 @@ import { register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
 import * as oauth from '@/routes/oauth';
-import { Github, Chrome } from 'lucide-react';
+import * as passkeyRoutes from '@/routes/passkeys';
+import { dashboard } from '@/routes';
+import { Github, Chrome, Fingerprint } from 'lucide-react';
+import axios from 'axios';
+import { toast } from 'sonner';
+import { useState } from 'react';
 
 type Props = {
     status?: string;
@@ -25,11 +30,59 @@ export default function Login({
     canResetPassword,
     canRegister,
 }: Props) {
+    const [authenticating, setAuthenticating] = useState(false);
+
+    const loginWithPasskey = async () => {
+        if (!window.browserSupportsWebAuthn()) {
+            toast.error('Your browser does not support WebAuthn');
+            return;
+        }
+
+        setAuthenticating(true);
+        try {
+            const { data: options } = await axios.get(passkeyRoutes.authentication_options().url);
+
+            const passkey = await window.startAuthentication({ optionsJSON: options });
+
+            await axios.post(passkeyRoutes.login().url, {
+                passkey: JSON.stringify(passkey),
+            });
+
+            window.location.href = dashboard();
+        } catch (error: any) {
+            console.error(error);
+            toast.error(error.response?.data?.message || 'Passkey authentication failed');
+        } finally {
+            setAuthenticating(false);
+        }
+    };
+
     return (
         <>
             <Head title="Log in" />
 
             <div className="grid gap-6">
+                <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={loginWithPasskey}
+                    disabled={authenticating}
+                >
+                    {authenticating ? <Spinner className="mr-2" /> : <Fingerprint className="mr-2 h-4 w-4" />}
+                    Log in with Passkey
+                </Button>
+
+                <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                        <Separator />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-background px-2 text-muted-foreground">
+                            Or continue with
+                        </span>
+                    </div>
+                </div>
+
                 <div className="grid grid-cols-2 gap-4">
                     <Button
                         variant="outline"
