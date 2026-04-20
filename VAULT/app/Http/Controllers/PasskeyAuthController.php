@@ -53,6 +53,21 @@ class PasskeyAuthController extends Controller
                 return response()->json(['message' => 'User not found'], 422);
             }
 
+            // Check for Two-Factor Authentication
+            if ($user->two_factor_secret &&
+                (! config('fortify.features') || in_array(\Laravel\Fortify\Features::twoFactorAuthentication(), config('fortify.features'))) &&
+                (! \Laravel\Fortify\Fortify::confirmsTwoFactorAuthentication() || ! is_null($user->two_factor_confirmed_at))) {
+
+                $request->session()->put([
+                    'login.id' => $user->getKey(),
+                    'login.remember' => $request->boolean('remember'),
+                ]);
+
+                \Laravel\Fortify\Events\TwoFactorAuthenticationChallenged::dispatch($user);
+
+                return response()->json(['two_factor' => true]);
+            }
+
             auth()->login($user, $request->boolean('remember'));
 
             Session::regenerate();

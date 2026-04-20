@@ -44,9 +44,15 @@ export default function Login({
 
             const passkey = await window.startAuthentication({ optionsJSON: options });
 
-            await axios.post(passkeyRoutes.login().url, {
+            const response = await axios.post(passkeyRoutes.login().url, {
                 passkey: JSON.stringify(passkey),
+                remember: true, // or track remember state if you have a checkbox for it
             });
+
+            if (response.data.two_factor) {
+                router.visit('/two-factor-challenge');
+                return;
+            }
 
             window.location.href = dashboard();
         } catch (error: any) {
@@ -121,6 +127,11 @@ export default function Login({
                     {...store.form()}
                     resetOnSuccess={['password']}
                     className="flex flex-col gap-6"
+                    onSuccess={(response: any) => {
+                        if (response?.props?.two_factor) {
+                            router.visit('/two-factor-challenge');
+                        }
+                    }}
                 >
                     {({ processing, errors }) => (
                         <>
