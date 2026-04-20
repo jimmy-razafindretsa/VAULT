@@ -21,15 +21,17 @@ declare global {
     }
 }
 
-window.browserSupportsWebAuthn = browserSupportsWebAuthn;
-window.startAuthentication = startAuthentication;
-window.startRegistration = startRegistration;
-window.axios = axios;
+if (typeof window !== 'undefined') {
+    window.browserSupportsWebAuthn = browserSupportsWebAuthn;
+    window.startAuthentication = startAuthentication;
+    window.startRegistration = startRegistration;
+    window.axios = axios;
 
-// Configure axios for Laravel CSRF protection
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-window.axios.defaults.withCredentials = true;
-window.axios.defaults.withXSRFToken = true;
+    // Configure axios for Laravel CSRF protection
+    window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+    window.axios.defaults.withCredentials = true;
+    window.axios.defaults.withXSRFToken = true;
+}
 
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';

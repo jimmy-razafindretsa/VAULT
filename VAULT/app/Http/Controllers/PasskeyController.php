@@ -34,19 +34,32 @@ class PasskeyController extends Controller
             'passkey' => 'required',
         ]);
 
-        $storePasskeyAction = Config::getAction('store_passkey', StorePasskeyAction::class);
+        try {
+            $storePasskeyAction = Config::getAction('store_passkey', StorePasskeyAction::class);
 
-        $options = session()->pull('passkey-registration-options');
+            $options = session()->pull('passkey-registration-options');
 
-        $storePasskeyAction->execute(
-            auth()->user(),
-            $request->passkey,
-            $options,
-            $request->getHost(),
-            ['name' => $request->name]
-        );
+            if (! $options) {
+                \Log::error('Passkey registration failed: Missing options in session');
+                return response()->json(['message' => 'Registration session expired. Please try again.'], 422);
+            }
 
-        return response()->json(['message' => 'Passkey registered successfully']);
+            $storePasskeyAction->execute(
+                auth()->user(),
+                $request->passkey,
+                $options,
+                parse_url(config('app.url'), PHP_URL_HOST),
+                ['name' => $request->name]
+            );
+
+            return response()->json(['message' => 'Passkey registered successfully']);
+        } catch (\Exception $e) {
+            \Log::error('Passkey registration failed: ' . $e->getMessage(), [
+                'exception' => $e,
+                'user_id' => auth()->id(),
+            ]);
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 
     public function destroy($id)

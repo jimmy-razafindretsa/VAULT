@@ -16,8 +16,8 @@ class PasskeyAuthController extends Controller
 
         $options = $action->execute();
 
-        // The action itself puts it in the session (Spatie's implementation)
-        // Session::flash('passkey-authentication-options', $options);
+        // Ensure it's in the session with a longer-lived key if flash fails us
+        session()->put('passkey-authentication-options', $options);
 
         return response()->json(json_decode($options));
     }
@@ -28,27 +28,42 @@ class PasskeyAuthController extends Controller
             'passkey' => ['required', 'json'],
         ]);
 
-        $findPasskeyAction = Config::getAction('find_passkey', FindPasskeyToAuthenticateAction::class);
+        try {
+            $findPasskeyAction = Config::getAction('find_passkey', FindPasskeyToAuthenticateAction::class);
 
-        $passkey = $findPasskeyAction->execute(
-            $request->input('passkey'),
-            Session::get('passkey-authentication-options')
-        );
+            $options = session()->get('passkey-authentication-options');
 
-        if (! $passkey) {
-            return response()->json(['message' => 'Invalid passkey'], 422);
+            if (! $options) {
+                \Log::error('Passkey authentication failed: Missing options in session');
+                return response()->json(['message' => 'Authentication session expired. Please try again.'], 422);
+            }
+
+            $passkey = $findPasskeyAction->execute(
+                $request->input('passkey'),
+                $options
+            );
+
+            if (! $passkey) {
+                return response()->json(['message' => 'Invalid passkey or validation failed'], 422);
+            }
+
+            $user = $passkey->authenticatable;
+
+            if (! $user) {
+                return response()->json(['message' => 'User not found'], 422);
+            }
+
+            auth()->login($user, $request->boolean('remember'));
+
+            Session::regenerate();
+            session()->forget('passkey-authentication-options');
+
+            return response()->json(['message' => 'Authenticated successfully']);
+        } catch (\Exception $e) {
+            \Log::error('Passkey authentication failed: ' . $e->getMessage(), [
+                'exception' => $e,
+            ]);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
-
-        $user = $passkey->authenticatable;
-
-        if (! $user) {
-            return response()->json(['message' => 'User not found'], 422);
-        }
-
-        auth()->login($user, $request->boolean('remember'));
-
-        Session::regenerate();
-
-        return response()->json(['message' => 'Authenticated successfully']);
     }
 }
