@@ -54,7 +54,7 @@ export default function Login({
                 return;
             }
 
-            window.location.href = dashboard();
+            window.location.href = dashboard().url;
         } catch (error: any) {
             console.error(error);
             toast.error(error.response?.data?.message || 'Passkey authentication failed');

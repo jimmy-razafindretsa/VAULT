@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { store } from '@/routes/password/confirm';
+import {Fingerprint} from "lucide-react";
 
 export default function ConfirmPassword() {
     return (
@@ -23,7 +24,7 @@ export default function ConfirmPassword() {
                                 autoComplete="current-password"
                                 autoFocus
                             />
-
+                            
                             <InputError message={errors.password} />
                         </div>
 
@@ -36,6 +37,7 @@ export default function ConfirmPassword() {
                                 {processing && <Spinner />}
                                 Confirm password
                             </Button>
+
                         </div>
                     </div>
                 )}
@@ -45,6 +47,9 @@ export default function ConfirmPassword() {
 }
 
 ConfirmPassword.layout = {
+    // TODO  if the password is null, bring up oauth component
+    //if a passkey is configured, show button.
+    //make sure the email is the same as the one registered with, same thing with the delete account
     title: 'Confirm your password',
     description:
         'This is a secure area of the application. Please confirm your password before continuing.',

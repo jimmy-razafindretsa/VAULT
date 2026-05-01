@@ -25,7 +25,7 @@ return [
         'store_passkey' => StorePasskeyAction::class,
         'generate_passkey_authentication_options' => GeneratePasskeyAuthenticationOptionsAction::class,
         'find_passkey' => FindPasskeyToAuthenticateAction::class,
-        'configure_ceremony_step_manager_factory' => ConfigureCeremonyStepManagerFactoryAction::class,
+        'configure_ceremony_step_manager_factory' => \App\Actions\Passkeys\ConfigureCeremonyStepManagerFactoryAction::class,
     ],
 
     /*
