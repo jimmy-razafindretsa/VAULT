@@ -21,7 +21,7 @@ class OAuthController extends Controller
     /**
      * Obtain the user information from the provider.
      */
-    public function callback(string $provider): RedirectResponse
+    public function callback(string $provider, \Illuminate\Http\Request $request): RedirectResponse
     {
         try {
             $socialUser = Socialite::driver($provider)->user();
@@ -42,6 +42,7 @@ class OAuthController extends Controller
         ]);
 
         Auth::login($user);
+        $request->session()->put('auth.password_confirmed_at', time());
 
         return redirect()->intended('/dashboard');
     }

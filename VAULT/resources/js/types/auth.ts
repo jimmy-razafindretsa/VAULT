@@ -7,6 +7,8 @@ export type User = {
     two_factor_enabled?: boolean;
     created_at: string;
     updated_at: string;
+    has_password?: boolean;
+    has_passkeys?: boolean;
     [key: string]: unknown;
 };
 

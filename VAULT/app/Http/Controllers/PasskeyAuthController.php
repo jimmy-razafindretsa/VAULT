@@ -72,8 +72,15 @@ class PasskeyAuthController extends Controller
 
             Session::regenerate();
             session()->forget('passkey-authentication-options');
+            
+            $request->session()->put('auth.password_confirmed_at', time());
 
-            return response()->json(['message' => 'Authenticated successfully']);
+            $intended = session()->pull('url.intended', url('/dashboard'));
+
+            return response()->json([
+                'message' => 'Authenticated successfully',
+                'redirect' => $intended
+            ]);
         } catch (\Exception $e) {
             \Log::error('Passkey authentication failed: ' . $e->getMessage(), [
                 'exception' => $e,
