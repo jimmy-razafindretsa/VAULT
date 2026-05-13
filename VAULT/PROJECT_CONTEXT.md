@@ -52,3 +52,43 @@ There is currently **no custom domain logic** (e.g., custom tables, specific bus
    - Use **Fortify** for standard web-based user authentication and profile management.
    - Use **Passport** for issuing API tokens or handling third-party OAuth flows.
 5. **No Blind API Creation:** Since the project uses Inertia.js, do not build standard JSON API endpoints for the frontend unless explicitly requested. Return Inertia responses (`Inertia::render()`) from controllers.
+
+---
+
+## 📦 4. Core Dependency Versions
+
+To avoid dependency circles, version conflicts, or incompatible updates, always reference these specific versions:
+
+**Backend (PHP/Laravel)**
+- `php`: ^8.3
+- `laravel/framework`: ^13.0
+- `inertiajs/inertia-laravel`: ^3.0
+- `laravel/fortify`: ^1.36
+- `laravel/passport`: ^13.0
+- `laravel/socialite`: ^5.26
+- `laravel/wayfinder`: ^0.1.14
+- `spatie/laravel-passkeys`: ^1.7
+- `pestphp/pest`: ^4.6 (Testing)
+
+**Frontend (React/Vite/Tailwind)**
+- `react` & `react-dom`: ^19.2.0
+- `@inertiajs/react`: ^3.0.0
+- `tailwindcss`: ^4.0.0
+- `vite`: ^8.0.0
+- `typescript`: ^5.7.2
+- `lucide-react`: ^0.475.0
+- `@radix-ui/react-*`: Various versions (always check `package.json` for exact match before adding new primitives)
+
+---
+
+## 🤝 5. Agent Communication Protocol (Backend <-> Frontend)
+
+Since this project uses Inertia.js and a monolithic structure, the Backend Agent (me) and Frontend Agent must work closely together. 
+
+**How the USER can facilitate communication:**
+
+1. **Sequential Handoff:** Have me (the Backend Agent) build the data models, controllers, routes, and business logic *first*. 
+2. **Handoff Document:** Once my backend tasks are done, I will update a `HANDOFF.md` file (or provide a detailed summary artifact) containing the Inertia page names, Wayfinder route definitions, and expected props/payloads.
+3. **Agent Mentions:** When you call the Frontend Agent, explicitly mention the handoff document: *"Hey Frontend Agent, the backend is ready. Please read HANDOFF.md and implement the UI."*
+4. **Git Checkpoints:** I will instruct you to commit my backend changes before the Frontend Agent takes over. This ensures the Frontend Agent works on a clean working tree and has access to the newly generated `laravel/wayfinder` typings.
+5. **Wayfinder is the Source of Truth:** The Frontend Agent MUST use `laravel/wayfinder` generated functions to interact with the backend, ensuring perfect sync between backend routes and frontend calls.

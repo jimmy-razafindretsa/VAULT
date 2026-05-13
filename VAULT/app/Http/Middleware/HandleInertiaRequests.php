@@ -45,6 +45,7 @@ class HandleInertiaRequests extends Middleware
                     'has_password' => !is_null($user->password),
                     'has_passkeys' => $user->passkeys()->exists(),
                 ]) : null,
+                'password_confirmed_at' => $request->session()->get('auth.password_confirmed_at', 0),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

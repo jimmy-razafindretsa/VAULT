@@ -14,6 +14,7 @@ export type User = {
 
 export type Auth = {
     user: User;
+    password_confirmed_at?: number;
 };
 
 export type TwoFactorSetupData = {

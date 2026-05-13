@@ -30,6 +30,26 @@ class OAuthController extends Controller
             return redirect()->route('login')->withErrors(['oauth' => 'Authentication failed.']);
         }
 
+        if (Auth::check()) {
+            $currentUser = Auth::user();
+            
+            if ($currentUser->{$provider . '_id'} === $socialUser->getId() || 
+                $currentUser->email === $socialUser->getEmail()) {
+                
+                if (empty($currentUser->{$provider . '_id'})) {
+                    $currentUser->update([$provider . '_id' => $socialUser->getId()]);
+                }
+
+                $request->session()->put('auth.password_confirmed_at', time());
+
+                return redirect()->intended('/dashboard');
+            } else {
+                return redirect()->route('password.confirm')->withErrors([
+                    'oauth' => 'Please authenticate with the correct ' . ucfirst($provider) . ' account to confirm your identity.'
+                ]);
+            }
+        }
+
         $user = User::updateOrCreate([
             'email' => $socialUser->getEmail(),
         ], [
@@ -37,12 +57,9 @@ class OAuthController extends Controller
             $provider . '_id' => $socialUser->getId(),
             'avatar_url' => $socialUser->getAvatar(),
             'email_verified_at' => now(),
-            // Ensure password is not required for OAuth users if it's already set
-            // but we need to satisfy the database if it was somehow not nullable (it is now)
         ]);
 
         Auth::login($user);
-        $request->session()->put('auth.password_confirmed_at', time());
 
         return redirect()->intended('/dashboard');
     }

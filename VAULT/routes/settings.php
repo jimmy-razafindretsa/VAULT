@@ -21,4 +21,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('user-password.update');
 
     Route::inertia('settings/appearance', 'settings/appearance')->name('appearance.edit');
+
+    Route::delete('settings/security/sessions/{id}', [SecurityController::class, 'destroySession'])
+        ->middleware('password.confirm')
+        ->name('sessions.destroy');
 });
