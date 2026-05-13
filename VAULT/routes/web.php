@@ -14,8 +14,17 @@ Route::inertia('/', 'welcome', [
     'canRegister' => Features::enabled(Features::registration()),
 ])->name('home');
 
+// Documentation pages
+Route::inertia('/docs/passkeys', 'docs/passkeys')->name('docs.passkeys');
+Route::inertia('/docs/two-factor', 'docs/two-factor')->name('docs.two-factor');
+Route::inertia('/docs/social-login', 'docs/social-login')->name('docs.social-login');
+Route::inertia('/docs/tokens', 'docs/tokens')->name('docs.tokens');
+
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::get('dashboard', [App\Http\Controllers\CredentialController::class, 'index'])->name('dashboard');
+    Route::post('credentials', [App\Http\Controllers\CredentialController::class, 'store'])->name('credentials.store');
+    Route::put('credentials/{credential}', [App\Http\Controllers\CredentialController::class, 'update'])->name('credentials.update');
+    Route::delete('credentials/{credential}', [App\Http\Controllers\CredentialController::class, 'destroy'])->name('credentials.destroy');
 
     Route::get('passkeys', [App\Http\Controllers\PasskeyController::class, 'index'])->name('passkeys.index');
     Route::get('passkeys/register-options', [App\Http\Controllers\PasskeyController::class, 'registerOptions'])->name('passkeys.register_options');

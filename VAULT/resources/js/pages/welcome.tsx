@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { dashboard, login, register } from '@/routes';
+import { login, register } from '@/routes';
+import docs from '@/routes/docs';
 import AppLogoIcon from '@/components/app-logo-icon';
 
 // ─── Particle canvas ──────────────────────────────────────────────────────────
@@ -192,15 +193,20 @@ function FeatureCard({
     number,
     title,
     description,
+    href,
     accent = false,
 }: {
     number: string;
     title: string;
     description: string;
+    href: string;
     accent?: boolean;
 }) {
     return (
-        <div className="group border-t border-white/10 py-10 flex gap-8 hover:border-white/30 transition-colors duration-500">
+        <Link
+            href={href}
+            className="group border-t border-white/10 py-10 flex gap-8 hover:border-white/30 transition-colors duration-500 cursor-pointer"
+        >
             <span className="text-[10px] tracking-[0.2em] text-white/25 font-mono mt-1 shrink-0 w-8">{number}</span>
             <div className="flex-1 min-w-0">
                 <h3
@@ -216,7 +222,7 @@ function FeatureCard({
                     VIEW →
                 </span>
             </div>
-        </div>
+        </Link>
     );
 }
 
@@ -413,22 +419,26 @@ export default function Welcome({
                             number="01"
                             title="Passkey Authentication"
                             description="Biometric login. Phishing-resistant, stored on-device."
+                            href={docs.passkeys.url()}
                             accent={true}
                         />
                         <FeatureCard
                             number="02"
                             title="Two-Factor Enforcement"
                             description="TOTP with recovery codes. No SMS. No compromises."
+                            href={docs.twoFactor.url()}
                         />
                         <FeatureCard
                             number="03"
                             title="Social Login"
                             description="GitHub and Google. One click, zero friction."
+                            href={docs.socialLogin.url()}
                         />
                         <FeatureCard
                             number="04"
                             title="Token Management"
                             description="Scoped OAuth2 tokens. Rotate. Revoke. Control."
+                            href={docs.tokens.url()}
                         />
                     </div>
                 </section>
@@ -565,7 +575,7 @@ export default function Welcome({
                 </section>
 
                 {/* ── CTA ──────────────────────────────────────────────── */}
-                <section className="max-w-7xl mx-auto px-8 py-40 text-center">
+                <section className="max-w-7xl mx-auto px-8 py-40 text-center" id="pricing">
                     <h2 className="text-[clamp(2.5rem,7vw,7rem)] font-thin leading-[0.9] tracking-tight text-white mb-14">
                         Secure everything.
                     </h2>
@@ -579,6 +589,10 @@ export default function Welcome({
                             <span className="group-hover:translate-x-1.5 transition-transform duration-300">→</span>
                         </Link>
                     )}
+
+                    <p className="mt-8 text-[11px] tracking-[0.15em] text-white/20 uppercase">
+                        Free forever — this one's on me.
+                    </p>
                 </section>
 
                 {/* ── FOOTER ───────────────────────────────────────────── */}

@@ -37,4 +37,9 @@ class User extends Authenticatable implements OAuthenticatable, HasPasskeys,Must
             'two_factor_confirmed_at' => 'datetime',
         ];
     }
+
+    public function credentials()
+    {
+        return $this->hasMany(Credential::class);
+    }
 }

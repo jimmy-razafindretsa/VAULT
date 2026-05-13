@@ -83,7 +83,7 @@ export default function ConfirmPassword() {
                 )}
 
                 {has_password ? (
-                    <Form {...store.form()} resetOnSuccess={['password']}>
+                    <Form action={store.url()} method="post" resetOnSuccess={['password']}>
                         {({ processing, errors }) => (
                             <div className="grid gap-6">
                                 <div className="grid gap-2">

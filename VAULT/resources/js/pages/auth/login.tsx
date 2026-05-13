@@ -124,7 +124,8 @@ export default function Login({
                 </div>
 
                 <Form
-                    {...store.form()}
+                    action={store.url()}
+                    method="post"
                     resetOnSuccess={['password']}
                     className="flex flex-col gap-6"
                     onSuccess={(response: any) => {
