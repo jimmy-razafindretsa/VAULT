@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 import { dashboard } from '@/routes';
 import credentials from '@/routes/credentials';
 import { Search, Plus, Eye, EyeOff, ExternalLink, Trash2, X, Copy, Check } from 'lucide-react';
+import PasswordEntropyBar from '@/components/password-entropy-bar';
+import PasswordGenerator from '@/components/password-generator';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Credential {
@@ -37,32 +39,32 @@ function CredentialCard({ credential, onClick }: { credential: Credential; onCli
     return (
         <button
             onClick={onClick}
-            className="group relative aspect-square flex flex-col items-center justify-center gap-3 border border-white/8 bg-white/[0.02] hover:bg-white/[0.06] hover:border-white/20 transition-all duration-300 p-4 cursor-pointer"
+            className="group relative aspect-square flex flex-col items-center justify-center gap-3.5 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/[0.15] transition-all duration-300 p-5 cursor-pointer"
         >
             {/* Icon */}
-            <div className="w-12 h-12 flex items-center justify-center">
+            <div className="w-14 h-14 flex items-center justify-center">
                 {favicon && !imgError ? (
                     <img
                         src={favicon}
                         alt={credential.name}
-                        className="w-10 h-10 object-contain"
+                        className="w-11 h-11 object-contain rounded-md"
                         onError={() => setImgError(true)}
                     />
                 ) : (
-                    <div className="w-10 h-10 flex items-center justify-center border border-white/10 text-white/40 text-lg font-light">
+                    <div className="w-11 h-11 flex items-center justify-center rounded-lg border border-white/[0.08] text-white/35 text-xl font-light">
                         {getInitial(credential.name)}
                     </div>
                 )}
             </div>
 
             {/* Name */}
-            <span className="text-[11px] tracking-[0.1em] text-white/50 group-hover:text-white/80 transition-colors uppercase truncate w-full text-center">
+            <span className="text-[10px] tracking-[0.08em] text-white/40 group-hover:text-white/70 transition-colors truncate w-full text-center">
                 {credential.name}
             </span>
 
             {/* Hover glow */}
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                style={{ background: 'radial-gradient(circle at 50% 40%, rgba(255,255,255,0.03) 0%, transparent 70%)' }} />
+            <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                style={{ background: 'radial-gradient(circle at 50% 40%, rgba(255,255,255,0.025) 0%, transparent 70%)' }} />
         </button>
     );
 }
@@ -72,12 +74,12 @@ function AddCard({ onClick }: { onClick: () => void }) {
     return (
         <button
             onClick={onClick}
-            className="group aspect-square flex flex-col items-center justify-center gap-3 border border-dashed border-white/10 hover:border-white/30 hover:bg-white/[0.03] transition-all duration-300 cursor-pointer"
+            className="group aspect-square flex flex-col items-center justify-center gap-3.5 rounded-xl border border-dashed border-white/[0.07] hover:border-white/[0.2] hover:bg-white/[0.02] transition-all duration-300 cursor-pointer"
         >
-            <div className="w-8 h-8 flex items-center justify-center border border-white/15 group-hover:border-white/40 transition-colors">
-                <Plus className="w-4 h-4 text-white/25 group-hover:text-white/60 transition-colors" />
+            <div className="w-9 h-9 flex items-center justify-center rounded-lg border border-white/[0.1] group-hover:border-white/30 transition-colors">
+                <Plus className="w-4 h-4 text-white/20 group-hover:text-white/50 transition-colors" />
             </div>
-            <span className="text-[10px] tracking-[0.2em] text-white/20 group-hover:text-white/40 transition-colors uppercase">
+            <span className="text-[10px] tracking-[0.1em] text-white/20 group-hover:text-white/40 transition-colors">
                 Add
             </span>
         </button>
@@ -147,8 +149,11 @@ function ModalBackdrop({ children, onClose }: { children: React.ReactNode; onClo
             onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
         >
             {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative z-10 w-full sm:max-w-md">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={onClose} />
+            <div
+                className="relative z-10 w-full sm:max-w-md"
+                style={{ animation: 'modalIn 0.22s cubic-bezier(0.16,1,0.3,1) both' }}
+            >
                 {children}
             </div>
         </div>
@@ -177,7 +182,7 @@ function ViewModal({
 
     return (
         <ModalBackdrop onClose={onClose}>
-            <div className="bg-[#0f0f0f] border border-white/10 mx-4 sm:mx-0">
+            <div className="bg-[#111111] rounded-2xl border border-white/[0.09] mx-4 sm:mx-0 overflow-hidden">
                 {/* Header */}
                 <div className="flex items-center gap-4 px-6 pt-6 pb-5 border-b border-white/6">
                     <div className="w-9 h-9 flex items-center justify-center shrink-0">
@@ -268,12 +273,12 @@ function FormModal({
         }
     };
 
-    const inputClass = "w-full bg-transparent border-b border-white/10 focus:border-white/35 outline-none text-[13px] text-white/80 placeholder-white/20 py-2.5 transition-colors";
-    const labelClass = "block text-[9px] tracking-[0.25em] text-white/25 uppercase mb-1";
+    const inputClass = "w-full bg-white/[0.03] rounded-lg border border-white/[0.07] focus:border-white/20 focus:bg-white/[0.05] outline-none text-[13px] text-white/75 placeholder-white/20 px-3 py-2.5 transition-all duration-200";
+    const labelClass = "block text-[9px] tracking-[0.2em] text-white/25 uppercase mb-1.5";
 
     return (
         <ModalBackdrop onClose={onClose}>
-            <div className="bg-[#0f0f0f] border border-white/10 mx-4 sm:mx-0">
+            <div className="bg-[#111111] rounded-2xl border border-white/[0.09] mx-4 sm:mx-0 overflow-hidden">
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 pt-6 pb-5 border-b border-white/6">
                     <span className="text-[11px] tracking-[0.2em] text-white/50 uppercase">
@@ -337,6 +342,13 @@ function FormModal({
                             >
                                 {showPass ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                             </button>
+                        </div>
+                        {data.password && <PasswordEntropyBar password={data.password} />}
+                        <div className="mt-4">
+                            <PasswordGenerator onPasswordGenerated={(pass) => {
+                                setData('password', pass);
+                                setShowPass(true);
+                            }} />
                         </div>
                     </div>
 
@@ -410,7 +422,12 @@ export default function Dashboard({ credentials: creds = [], filters = {} }: Das
     return (
         <>
             <Head title="Dashboard" />
-
+            <style>{`
+                @keyframes modalIn {
+                    from { opacity: 0; transform: translateY(12px) scale(0.98); }
+                    to   { opacity: 1; transform: translateY(0) scale(1); }
+                }
+            `}</style>
             <div className="flex flex-1 flex-col p-6 md:p-8 gap-8">
 
                 {/* ── Top bar ── */}

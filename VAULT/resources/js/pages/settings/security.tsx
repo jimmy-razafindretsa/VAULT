@@ -69,7 +69,7 @@ export default function Security({
         prevTwoFactorEnabled.current = twoFactorEnabled;
     }, [twoFactorEnabled, clearTwoFactorAuthData]);
 
-    const formProps = SecurityController.update.form();
+    const formProps = { action: SecurityController.update.url(), method: "put" as const };
     const submitButtonRef = useRef<HTMLButtonElement>(null);
 
     const handlePasswordSubmitClick = (e: React.MouseEvent<HTMLButtonElement>) => {

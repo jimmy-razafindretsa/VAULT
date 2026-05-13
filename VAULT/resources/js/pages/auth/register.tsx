@@ -11,6 +11,8 @@ import { login } from '@/routes';
 import { store } from '@/routes/register';
 import * as oauth from '@/routes/oauth';
 import { Github, Chrome } from 'lucide-react';
+import PasswordEntropyBar from '@/components/password-entropy-bar';
+import PasswordGenerator from '@/components/password-generator';
 
 export default function Register() {
     return (
@@ -59,7 +61,7 @@ export default function Register() {
                     disableWhileProcessing
                     className="flex flex-col gap-6"
                 >
-                    {({ processing, errors }) => (
+                    {({ data, setData, processing, errors }) => (
                         <>
                             <div className="grid gap-6">
                                 <div className="grid gap-2">
@@ -103,7 +105,16 @@ export default function Register() {
                                         autoComplete="new-password"
                                         name="password"
                                         placeholder="Password"
+                                        value={data.password || ''}
+                                        onChange={(e) => setData('password', e.target.value)}
                                     />
+                                    {data.password && <PasswordEntropyBar password={data.password} />}
+                                    <div className="mt-2">
+                                        <PasswordGenerator onPasswordGenerated={(pass) => {
+                                            setData('password', pass);
+                                            setData('password_confirmation', pass);
+                                        }} />
+                                    </div>
                                     <InputError message={errors.password} />
                                 </div>
 
@@ -118,6 +129,8 @@ export default function Register() {
                                         autoComplete="new-password"
                                         name="password_confirmation"
                                         placeholder="Confirm password"
+                                        value={data.password_confirmation || ''}
+                                        onChange={(e) => setData('password_confirmation', e.target.value)}
                                     />
                                     <InputError
                                         message={errors.password_confirmation}
