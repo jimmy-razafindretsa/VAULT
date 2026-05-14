@@ -16,16 +16,19 @@ export function calculateEntropy(password: string): number {
     return password.length * Math.log2(poolSize);
 }
 
-// Four thresholds: < 40 → Very Weak, 40-59 → Weak, 60-79 → Good, ≥ 80 → Strong
-function getStrength(entropy: number): {
+interface Strength {
     label: string;
-    segments: number; // 1-4 lit segments
-    color: string;    // tailwind inline colour
-} {
-    if (entropy >= 80) return { label: 'Strong',    segments: 4, color: '#c9a84c' }; // gold
-    if (entropy >= 60) return { label: 'Good',      segments: 3, color: 'rgba(255,255,255,0.55)' };
-    if (entropy >= 40) return { label: 'Weak',      segments: 2, color: 'rgba(255,255,255,0.3)' };
-    return              { label: 'Very Weak',  segments: 1, color: 'rgba(255,80,80,0.6)' };
+    segments: number;
+    color: string;
+    glow: string;
+}
+
+// Four thresholds: < 40 → Very Weak, 40–59 → Weak, 60–79 → Good, ≥ 80 → Strong
+function getStrength(entropy: number): Strength {
+    if (entropy >= 80) return { label: 'Strong',    segments: 4, color: '#c9a84c', glow: 'rgba(201,168,76,0.35)' };
+    if (entropy >= 60) return { label: 'Good',      segments: 3, color: 'rgba(255,255,255,0.60)', glow: 'rgba(255,255,255,0.12)' };
+    if (entropy >= 40) return { label: 'Fair',      segments: 2, color: 'rgba(255,255,255,0.35)', glow: 'transparent' };
+    return              { label: 'Weak',      segments: 1, color: 'rgba(255,90,90,0.70)',  glow: 'rgba(255,60,60,0.18)' };
 }
 
 export default function PasswordEntropyBar({ password = '' }: Props) {
@@ -35,31 +38,49 @@ export default function PasswordEntropyBar({ password = '' }: Props) {
     if (!password) return null;
 
     return (
-        <div className="mt-3 space-y-2">
+        <div
+            className="mt-2.5 space-y-2"
+            style={{ animation: 'entropyFadeIn 0.18s ease both' }}
+        >
+            <style>{`
+                @keyframes entropyFadeIn {
+                    from { opacity: 0; transform: translateY(-4px); }
+                    to   { opacity: 1; transform: translateY(0); }
+                }
+            `}</style>
+
             {/* Four-segment bar */}
-            <div className="flex gap-1">
-                {[1, 2, 3, 4].map((seg) => (
-                    <div
-                        key={seg}
-                        className="h-[3px] flex-1 rounded-full transition-all duration-400"
-                        style={{
-                            background: seg <= strength.segments
-                                ? strength.color
-                                : 'rgba(255,255,255,0.07)',
-                        }}
-                    />
-                ))}
+            <div className="flex gap-[3px]">
+                {[1, 2, 3, 4].map((seg) => {
+                    const active = seg <= strength.segments;
+                    return (
+                        <div
+                            key={seg}
+                            className="h-[2.5px] flex-1 rounded-full"
+                            style={{
+                                background: active ? strength.color : 'rgba(255,255,255,0.06)',
+                                boxShadow: active && strength.glow !== 'transparent'
+                                    ? `0 0 6px 0 ${strength.glow}`
+                                    : 'none',
+                                transition: 'background 0.35s ease, box-shadow 0.35s ease',
+                            }}
+                        />
+                    );
+                })}
             </div>
 
             {/* Label row */}
             <div className="flex items-center justify-between">
                 <span
-                    className="text-[10px] tracking-[0.15em] uppercase transition-colors duration-300"
-                    style={{ color: strength.color }}
+                    className="text-[9.5px] tracking-[0.18em] uppercase font-medium"
+                    style={{
+                        color: strength.color,
+                        transition: 'color 0.35s ease',
+                    }}
                 >
                     {strength.label}
                 </span>
-                <span className="text-[10px] font-mono text-white/20">
+                <span className="text-[9.5px] font-mono tabular-nums text-white/18">
                     {Math.round(entropy)} bits
                 </span>
             </div>

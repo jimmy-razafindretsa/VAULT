@@ -26,6 +26,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('credentials/{credential}', [App\Http\Controllers\CredentialController::class, 'update'])->name('credentials.update');
     Route::delete('credentials/{credential}', [App\Http\Controllers\CredentialController::class, 'destroy'])->name('credentials.destroy');
 
+    Route::post('credentials/{credential}/share', [App\Http\Controllers\ShareCredentialController::class, 'store'])->name('shares.store');
+    Route::get('shares/accept/{token}', [App\Http\Controllers\ShareCredentialController::class, 'accept'])->name('shares.accept');
+
     Route::get('passkeys', [App\Http\Controllers\PasskeyController::class, 'index'])->name('passkeys.index');
     Route::get('passkeys/register-options', [App\Http\Controllers\PasskeyController::class, 'registerOptions'])->name('passkeys.register_options');
     Route::post('passkeys', [App\Http\Controllers\PasskeyController::class, 'store'])->name('passkeys.store');

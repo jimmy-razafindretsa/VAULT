@@ -50,14 +50,27 @@ class OAuthController extends Controller
             }
         }
 
-        $user = User::updateOrCreate([
-            'email' => $socialUser->getEmail(),
-        ], [
-            'name' => $socialUser->getName() ?? $socialUser->getNickname(),
-            $provider . '_id' => $socialUser->getId(),
-            'avatar_url' => $socialUser->getAvatar(),
-            'email_verified_at' => now(),
-        ]);
+        $user = User::where('email', $socialUser->getEmail())->first();
+
+        if ($user) {
+            // Link provider if not already linked
+            if (empty($user->{$provider . '_id'})) {
+                $user->update([
+                    $provider . '_id' => $socialUser->getId(),
+                ]);
+            }
+            // We intentionally do not update 'name' or 'avatar_url' 
+            // so we don't overwrite their existing profile.
+        } else {
+            // Create new user
+            $user = User::create([
+                'email' => $socialUser->getEmail(),
+                'name' => $socialUser->getName() ?? $socialUser->getNickname(),
+                $provider . '_id' => $socialUser->getId(),
+                'avatar_url' => $socialUser->getAvatar(),
+                'email_verified_at' => now(),
+            ]);
+        }
 
         Auth::login($user);
 

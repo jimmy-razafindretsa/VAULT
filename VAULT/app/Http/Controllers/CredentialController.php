@@ -20,9 +20,14 @@ class CredentialController extends Controller
             ->get()
             ->makeVisible(['password', 'notes']); // Need to make visible since we hid them by default for general serialization
 
+        $pendingSharesCount = \App\Models\CredentialShare::where('recipient_id', $request->user()->id)
+            ->where('status', 'pending')
+            ->count();
+
         return inertia('dashboard', [
             'credentials' => $credentials,
             'filters' => $request->only('search'),
+            'pendingSharesCount' => $pendingSharesCount,
         ]);
     }
 

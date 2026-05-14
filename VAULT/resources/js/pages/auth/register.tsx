@@ -14,7 +14,11 @@ import { Github, Chrome } from 'lucide-react';
 import PasswordEntropyBar from '@/components/password-entropy-bar';
 import PasswordGenerator from '@/components/password-generator';
 
+import { useState } from 'react';
+
 export default function Register() {
+    const [password, setPassword] = useState('');
+    const [passwordConfirmation, setPasswordConfirmation] = useState('');
     return (
         <>
             <Head title="Register" />
@@ -61,7 +65,7 @@ export default function Register() {
                     disableWhileProcessing
                     className="flex flex-col gap-6"
                 >
-                    {({ data, setData, processing, errors }) => (
+                    {({ processing, errors }) => (
                         <>
                             <div className="grid gap-6">
                                 <div className="grid gap-2">
@@ -105,14 +109,14 @@ export default function Register() {
                                         autoComplete="new-password"
                                         name="password"
                                         placeholder="Password"
-                                        value={data.password || ''}
-                                        onChange={(e) => setData('password', e.target.value)}
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
                                     />
-                                    {data.password && <PasswordEntropyBar password={data.password} />}
+                                    {password && <PasswordEntropyBar password={password} />}
                                     <div className="mt-2">
                                         <PasswordGenerator onPasswordGenerated={(pass) => {
-                                            setData('password', pass);
-                                            setData('password_confirmation', pass);
+                                            setPassword(pass);
+                                            setPasswordConfirmation(pass);
                                         }} />
                                     </div>
                                     <InputError message={errors.password} />
@@ -129,8 +133,8 @@ export default function Register() {
                                         autoComplete="new-password"
                                         name="password_confirmation"
                                         placeholder="Confirm password"
-                                        value={data.password_confirmation || ''}
-                                        onChange={(e) => setData('password_confirmation', e.target.value)}
+                                        value={passwordConfirmation}
+                                        onChange={(e) => setPasswordConfirmation(e.target.value)}
                                     />
                                     <InputError
                                         message={errors.password_confirmation}

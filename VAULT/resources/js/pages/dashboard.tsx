@@ -2,7 +2,8 @@ import { Head, router, useForm } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 import { dashboard } from '@/routes';
 import credentials from '@/routes/credentials';
-import { Search, Plus, Eye, EyeOff, ExternalLink, Trash2, X, Copy, Check } from 'lucide-react';
+import shares from '@/routes/shares';
+import { Search, Plus, Eye, EyeOff, ExternalLink, Trash2, X, Copy, Check, Send, Bell } from 'lucide-react';
 import PasswordEntropyBar from '@/components/password-entropy-bar';
 import PasswordGenerator from '@/components/password-generator';
 
@@ -165,10 +166,12 @@ function ViewModal({
     credential,
     onClose,
     onEdit,
+    onShare,
 }: {
     credential: Credential;
     onClose: () => void;
     onEdit: () => void;
+    onShare: () => void;
 }) {
     const favicon = getFaviconUrl(credential.url);
     const [imgError, setImgError] = useState(false);
@@ -226,13 +229,114 @@ function ViewModal({
                         <Trash2 className="w-3.5 h-3.5" />
                         Delete
                     </button>
-                    <button
-                        onClick={onEdit}
-                        className="text-[11px] tracking-[0.12em] uppercase border border-white/15 hover:border-white/40 px-5 py-2 transition-colors text-white/50 hover:text-white/80"
-                    >
-                        Edit
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={onShare}
+                            className="flex items-center gap-1.5 text-[11px] tracking-wide text-white/25 hover:text-white/55 transition-colors"
+                        >
+                            <Send className="w-3.5 h-3.5" />
+                            Share
+                        </button>
+                        <button
+                            onClick={onEdit}
+                            className="text-[11px] tracking-[0.12em] uppercase border border-white/15 hover:border-white/40 px-5 py-2 transition-colors text-white/50 hover:text-white/80"
+                        >
+                            Edit
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </ModalBackdrop>
+    );
+}
+
+// ─── Share modal ──────────────────────────────────────────────────────────────
+function ShareModal({
+    credential,
+    onClose,
+}: {
+    credential: Credential;
+    onClose: () => void;
+}) {
+    const { data, setData, post, processing, errors, wasSuccessful, reset } = useForm({
+        name: '',
+    });
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        post(shares.store.url(credential.id), {
+            onSuccess: () => reset(),
+        });
+    };
+
+    return (
+        <ModalBackdrop onClose={onClose}>
+            <div className="bg-[#111111] rounded-2xl border border-white/[0.09] mx-4 sm:mx-0 overflow-hidden">
+                {/* Header */}
+                <div className="flex items-center justify-between px-6 pt-6 pb-5 border-b border-white/6">
+                    <div>
+                        <span className="text-[11px] tracking-[0.2em] text-white/50 uppercase">Share</span>
+                        <p className="text-[11px] text-white/25 mt-0.5 truncate max-w-[220px]">{credential.name}</p>
+                    </div>
+                    <button onClick={onClose} className="text-white/20 hover:text-white/60 transition-colors">
+                        <X className="w-4 h-4" />
                     </button>
                 </div>
+
+                <form onSubmit={handleSubmit} className="px-6 pt-6 pb-5 space-y-5">
+                    {/* Success banner */}
+                    {wasSuccessful && (
+                        <div className="flex items-center gap-3 rounded-lg bg-white/[0.04] border border-white/[0.08] px-4 py-3">
+                            <Check className="w-3.5 h-3.5 shrink-0" style={{ color: '#C9A84C' }} />
+                            <p className="text-[12px] text-white/60">
+                                Invitation sent — they'll receive a link to accept it.
+                            </p>
+                        </div>
+                    )}
+
+                    <div>
+                        <label className="block text-[9px] tracking-[0.2em] text-white/25 uppercase mb-1.5">
+                            Recipient Name
+                        </label>
+                        <input
+                            type="text"
+                            required
+                            value={data.name}
+                            onChange={e => setData('name', e.target.value)}
+                            placeholder="Full name of recipient"
+                            className="w-full bg-white/[0.03] rounded-lg border border-white/[0.07] focus:border-white/20 focus:bg-white/[0.05] outline-none text-[13px] text-white/75 placeholder-white/20 px-3 py-2.5 transition-all duration-200"
+                        />
+                        {errors.name && (
+                            <p className="text-[11px] text-red-400/70 mt-1.5">{errors.name}</p>
+                        )}
+                    </div>
+
+                    <p className="text-[11px] text-white/20 leading-relaxed">
+                        The recipient will receive an email with a one-time link to accept this credential.
+                        They must have a Vault account.
+                    </p>
+
+                    <div className="flex items-center justify-end gap-4 pt-1">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="text-[11px] tracking-wide text-white/25 hover:text-white/50 transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={processing}
+                            className="flex items-center gap-2 text-[11px] tracking-[0.12em] uppercase bg-white text-[#080808] px-6 py-2.5 font-medium hover:bg-white/90 transition-colors disabled:opacity-40"
+                        >
+                            {processing ? (
+                                'Sending…'
+                            ) : (
+                                <><Send className="w-3 h-3" /> Send invite</>
+                            )}
+                        </button>
+                    </div>
+                </form>
             </div>
         </ModalBackdrop>
     );
@@ -338,13 +442,13 @@ function FormModal({
                             <button
                                 type="button"
                                 onClick={() => setShowPass(!showPass)}
-                                className="absolute right-0 text-white/20 hover:text-white/50 transition-colors"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50 transition-colors"
                             >
                                 {showPass ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                             </button>
                         </div>
                         {data.password && <PasswordEntropyBar password={data.password} />}
-                        <div className="mt-4">
+                        <div className="mt-3">
                             <PasswordGenerator onPasswordGenerated={(pass) => {
                                 setData('password', pass);
                                 setShowPass(true);
@@ -389,16 +493,18 @@ function FormModal({
 interface DashboardProps {
     credentials: Credential[];
     filters: { search?: string };
+    pendingSharesCount?: number;
 }
 
-export default function Dashboard({ credentials: creds = [], filters = {} }: DashboardProps) {
+export default function Dashboard({ credentials: creds = [], filters = {}, pendingSharesCount = 0 }: DashboardProps) {
     const [search, setSearch] = useState(filters.search ?? '');
     const searchTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
 
     // Modal state
-    const [viewTarget, setViewTarget] = useState<Credential | null>(null);
-    const [editTarget, setEditTarget] = useState<Credential | null>(null);
-    const [addOpen, setAddOpen] = useState(false);
+    const [viewTarget, setViewTarget]   = useState<Credential | null>(null);
+    const [editTarget, setEditTarget]   = useState<Credential | null>(null);
+    const [shareTarget, setShareTarget] = useState<Credential | null>(null);
+    const [addOpen, setAddOpen]         = useState(false);
 
     // Debounced Inertia search
     const handleSearch = (value: string) => {
@@ -416,6 +522,7 @@ export default function Dashboard({ credentials: creds = [], filters = {} }: Das
     const handleCloseAll = () => {
         setViewTarget(null);
         setEditTarget(null);
+        setShareTarget(null);
         setAddOpen(false);
     };
 
@@ -443,6 +550,16 @@ export default function Dashboard({ credentials: creds = [], filters = {} }: Das
                             className="w-full bg-transparent border-b border-white/10 focus:border-white/30 outline-none pl-6 pb-2 text-[12px] text-white/60 placeholder-white/20 transition-colors"
                         />
                     </div>
+
+                    {/* Notification */}
+                    {pendingSharesCount > 0 ? (
+                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#C9A84C]/10 border border-[#C9A84C]/30 text-[#C9A84C] ml-4">
+                            <Bell className="w-3.5 h-3.5 animate-pulse" />
+                            <span className="text-[11px] tracking-wide">
+                                You've received a service. Check your emails
+                            </span>
+                        </div>
+                    ) : null}
 
                     {/* Spacer */}
                     <div className="flex-1" />
@@ -508,11 +625,18 @@ export default function Dashboard({ credentials: creds = [], filters = {} }: Das
             </div>
 
             {/* ── Modals ── */}
-            {viewTarget && !editTarget && (
+            {viewTarget && !editTarget && !shareTarget && (
                 <ViewModal
                     credential={viewTarget}
                     onClose={handleCloseAll}
                     onEdit={() => { setEditTarget(viewTarget); setViewTarget(null); }}
+                    onShare={() => { setShareTarget(viewTarget); setViewTarget(null); }}
+                />
+            )}
+            {shareTarget && (
+                <ShareModal
+                    credential={shareTarget}
+                    onClose={handleCloseAll}
                 />
             )}
             {editTarget && (
