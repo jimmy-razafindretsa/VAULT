@@ -2,6 +2,7 @@ import { Form, Head, usePage } from '@inertiajs/react';
 import PasskeyManager from '@/components/passkey-manager';
 import MfaManager from '@/components/mfa-manager';
 import SessionManager from '@/components/session-manager';
+import DeleteUser from '@/components/delete-user';
 import { ShieldCheck } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import SecurityController from '@/actions/App/Http/Controllers/Settings/SecurityController';
@@ -188,6 +189,7 @@ export default function Security({
                 <PasskeyManager />
                 {canManageTwoFactor && <MfaManager />}
                 <SessionManager sessions={sessions} />
+                <DeleteUser />
             </div>
 
             <Dialog open={showConfirmSetPasswordModal} onOpenChange={setShowConfirmSetPasswordModal}>

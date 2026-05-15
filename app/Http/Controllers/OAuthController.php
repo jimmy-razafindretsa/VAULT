@@ -53,14 +53,28 @@ class OAuthController extends Controller
         $user = User::where('email', $socialUser->getEmail())->first();
 
         if ($user) {
-            // Link provider if not already linked
+            // If the provider is not linked yet, force the user to log in to verify their identity.
             if (empty($user->{$provider . '_id'})) {
-                $user->update([
-                    $provider . '_id' => $socialUser->getId(),
+                $request->session()->put('pending_oauth_link', [
+                    'email' => $socialUser->getEmail(),
+                    'provider' => $provider,
+                    'id' => $socialUser->getId(),
+                ]);
+
+                return redirect()->route('login')->withErrors([
+                    'email' => 'An account with this email already exists. Please log in with your password to verify your identity and link your ' . ucfirst($provider) . ' account.',
                 ]);
             }
-            // We intentionally do not update 'name' or 'avatar_url' 
-            // so we don't overwrite their existing profile.
+            
+            // If the provider IS linked, check if 2FA is enabled
+            if (method_exists($user, 'hasEnabledTwoFactorAuthentication') && $user->hasEnabledTwoFactorAuthentication()) {
+                $request->session()->put([
+                    'login.id' => $user->getKey(),
+                    'login.remember' => false,
+                ]);
+
+                return redirect()->route('two-factor.login');
+            }
         } else {
             // Create new user
             $user = User::create([

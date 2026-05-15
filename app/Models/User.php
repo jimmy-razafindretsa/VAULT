@@ -16,7 +16,7 @@ use Spatie\LaravelPasskeys\Models\Concerns\HasPasskeys;
 use Spatie\LaravelPasskeys\Models\Concerns\InteractsWithPasskeys;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-#[Fillable(['name', 'email', 'password', 'github_id', 'google_id', 'avatar_url'])]
+#[Fillable(['name', 'email', 'password', 'github_id', 'google_id', 'avatar_url', 'email_verified_at'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements OAuthenticatable, HasPasskeys,MustVerifyEmail
 {

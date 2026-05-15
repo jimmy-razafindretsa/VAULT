@@ -18,7 +18,6 @@
         </option>
       </LaravelCodeGeneration>
     </option>
-    <option name="frameworkFound" value="true" />
     <option name="laravelBasePath" value="VAULT" />
     <option name="userClassName" value="\App\Models\User" />
   </component>
