@@ -17,6 +17,7 @@
         "laravel/socialite": "^5.26",
         "laravel/tinker": "^3.0",
         "laravel/wayfinder": "^0.1.14",
+        "resend/resend-php": "^1.3",
         "spatie/laravel-passkeys": "^1.7",
         "symfony/resend-mailer": "^8.0"
     },
