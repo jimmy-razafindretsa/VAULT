@@ -18,6 +18,7 @@ import { Github, Chrome, Fingerprint } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { useState } from 'react';
+import { recovery_code } from '@/routes/login';
 
 type Props = {
     status?: string;
@@ -31,6 +32,7 @@ export default function Login({
     canRegister,
 }: Props) {
     const [authenticating, setAuthenticating] = useState(false);
+    const [isRecoveryMode, setIsRecoveryMode] = useState(false);
 
     const loginWithPasskey = async () => {
         if (!window.browserSupportsWebAuthn()) {
@@ -125,96 +127,158 @@ export default function Login({
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
                         <span className="bg-background px-2 text-muted-foreground">
-                            Or continue with
+                            {isRecoveryMode ? 'Use a recovery code' : 'Or continue with'}
                         </span>
                     </div>
                 </div>
 
-                <Form
-                    action={store.url()}
-                    method="post"
-                    resetOnSuccess={['password']}
-                    className="flex flex-col gap-6"
-                    onSuccess={(response: any) => {
-                        if (response?.props?.two_factor) {
-                            router.visit('/two-factor-challenge');
-                        }
-                    }}
-                >
-                    {({ processing, errors }) => (
-                        <>
-                            <div className="grid gap-6">
-                                <div className="grid gap-2">
-                                    <Label htmlFor="email">Email address</Label>
-                                    <Input
-                                        id="email"
-                                        type="email"
-                                        name="email"
-                                        required
-                                        autoFocus
-                                        tabIndex={1}
-                                        autoComplete="email"
-                                        placeholder="email@example.com"
-                                    />
-                                    <InputError message={errors.email} />
-                                </div>
-
-                                <div className="grid gap-2">
-                                    <div className="flex items-center">
-                                        <Label htmlFor="password">Password</Label>
-                                        {canResetPassword && (
-                                            <TextLink
-                                                href={request()}
-                                                className="ml-auto text-sm"
-                                                tabIndex={5}
-                                            >
-                                                Forgot password?
-                                            </TextLink>
-                                        )}
+                {isRecoveryMode ? (
+                    <Form
+                        action={recovery_code.url()}
+                        method="post"
+                        className="flex flex-col gap-6"
+                    >
+                        {({ processing, errors }) => (
+                            <>
+                                <div className="grid gap-6">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="recovery_email">Email address</Label>
+                                        <Input
+                                            id="recovery_email"
+                                            type="email"
+                                            name="email"
+                                            required
+                                            autoFocus
+                                            autoComplete="email"
+                                            placeholder="email@example.com"
+                                        />
+                                        <InputError message={errors.email} />
                                     </div>
-                                    <PasswordInput
-                                        id="password"
-                                        name="password"
-                                        required
-                                        tabIndex={2}
-                                        autoComplete="current-password"
-                                        placeholder="Password"
-                                    />
-                                    <InputError message={errors.password} />
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="recovery_code">Recovery Code</Label>
+                                        <Input
+                                            id="recovery_code"
+                                            type="text"
+                                            name="recovery_code"
+                                            required
+                                            autoComplete="off"
+                                            placeholder="xxxx-xxxx"
+                                        />
+                                        <InputError message={errors.recovery_code} />
+                                    </div>
+                                    <Button
+                                        type="submit"
+                                        className="mt-4 w-full"
+                                        disabled={processing}
+                                    >
+                                        {processing && <Spinner />}
+                                        Log in with Recovery Code
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        onClick={() => setIsRecoveryMode(false)}
+                                    >
+                                        Back to Password Login
+                                    </Button>
+                                </div>
+                            </>
+                        )}
+                    </Form>
+                ) : (
+                    <Form
+                        action={store.url()}
+                        method="post"
+                        resetOnSuccess={['password']}
+                        className="flex flex-col gap-6"
+                        onSuccess={(response: any) => {
+                            if (response?.props?.two_factor) {
+                                router.visit('/two-factor-challenge');
+                            }
+                        }}
+                    >
+                        {({ processing, errors }) => (
+                            <>
+                                <div className="grid gap-6">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="email">Email address</Label>
+                                        <Input
+                                            id="email"
+                                            type="email"
+                                            name="email"
+                                            required
+                                            autoFocus
+                                            tabIndex={1}
+                                            autoComplete="email"
+                                            placeholder="email@example.com"
+                                        />
+                                        <InputError message={errors.email} />
+                                    </div>
+
+                                    <div className="grid gap-2">
+                                        <div className="flex items-center">
+                                            <Label htmlFor="password">Password</Label>
+                                            {canResetPassword && (
+                                                <TextLink
+                                                    href={request()}
+                                                    className="ml-auto text-sm"
+                                                    tabIndex={5}
+                                                >
+                                                    Forgot password?
+                                                </TextLink>
+                                            )}
+                                        </div>
+                                        <PasswordInput
+                                            id="password"
+                                            name="password"
+                                            required
+                                            tabIndex={2}
+                                            autoComplete="current-password"
+                                            placeholder="Password"
+                                        />
+                                        <InputError message={errors.password} />
+                                    </div>
+
+                                    <div className="flex items-center space-x-3">
+                                        <Checkbox
+                                            id="remember"
+                                            name="remember"
+                                            tabIndex={3}
+                                        />
+                                        <Label htmlFor="remember">Remember me</Label>
+                                    </div>
+
+                                    <Button
+                                        type="submit"
+                                        className="mt-4 w-full"
+                                        tabIndex={4}
+                                        disabled={processing}
+                                        data-test="login-button"
+                                    >
+                                        {processing && <Spinner />}
+                                        Log in
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        onClick={() => setIsRecoveryMode(true)}
+                                    >
+                                        Lost your device? Use Recovery Code
+                                    </Button>
                                 </div>
 
-                                <div className="flex items-center space-x-3">
-                                    <Checkbox
-                                        id="remember"
-                                        name="remember"
-                                        tabIndex={3}
-                                    />
-                                    <Label htmlFor="remember">Remember me</Label>
-                                </div>
-
-                                <Button
-                                    type="submit"
-                                    className="mt-4 w-full"
-                                    tabIndex={4}
-                                    disabled={processing}
-                                    data-test="login-button"
-                                >
-                                    {processing && <Spinner />}
-                                    Log in
-                                </Button>
-                            </div>
-
-                            {canRegister && (
-                                <div className="text-center text-sm text-muted-foreground">
-                                    Don't have an account?{' '}
-                                    <TextLink href={register()} tabIndex={5}>
-                                        Sign up
-                                    </TextLink>
-                                </div>
-                            )}
-                        </>
-                    )}
-                </Form>
+                                {canRegister && (
+                                    <div className="text-center text-sm text-muted-foreground">
+                                        Don't have an account?{' '}
+                                        <TextLink href={register()} tabIndex={5}>
+                                            Sign up
+                                        </TextLink>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </Form>
+                )}
             </div>
 
             {status && (

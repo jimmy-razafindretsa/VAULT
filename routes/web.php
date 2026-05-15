@@ -38,5 +38,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::get('passkeys/authentication-options', [App\Http\Controllers\PasskeyAuthController::class, 'authenticationOptions'])->name('passkeys.authentication_options');
 Route::post('passkeys/authenticate', [App\Http\Controllers\PasskeyAuthController::class, 'authenticate'])->name('passkeys.login');
 
+Route::post('/login/recovery-code', [App\Http\Controllers\Auth\RecoveryCodeLoginController::class, 'store'])->name('login.recovery_code');
 
 require __DIR__.'/settings.php';
