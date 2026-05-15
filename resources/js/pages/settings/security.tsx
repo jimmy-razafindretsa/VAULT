@@ -23,8 +23,6 @@ import { Label } from '@/components/ui/label';
 import { useTwoFactorAuth } from '@/hooks/use-two-factor-auth';
 import { edit } from '@/routes/security';
 
-import { SharedData } from '@/types';
-
 type Props = {
     canManageTwoFactor?: boolean;
     requiresConfirmation?: boolean;
@@ -38,7 +36,7 @@ export default function Security({
     twoFactorEnabled = false,
     sessions = [],
 }: Props) {
-    const { auth } = usePage<SharedData>().props;
+    const { auth } = usePage<any>().props;
     const { has_password } = auth.user;
 
     const passwordInput = useRef<HTMLInputElement>(null);
@@ -95,7 +93,7 @@ export default function Security({
 
                 <Form
                     {...formProps}
-                    ref={formRef}
+                    ref={formRef as any}
                     options={{
                         preserveScroll: true,
                     }}

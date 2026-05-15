@@ -1,4 +1,4 @@
-import { Form, Head, router } from '@inertiajs/react';
+import { Form, Head, router, usePage } from '@inertiajs/react';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import TextLink from '@/components/text-link';
@@ -63,11 +63,18 @@ export default function Login({
         }
     };
 
+    const { auth, errors: pageErrors } = usePage<any>().props;
+
     return (
         <>
             <Head title="Log in" />
 
             <div className="grid gap-6">
+                {(pageErrors.email || pageErrors.oauth) && (
+                    <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">
+                        {pageErrors.oauth || pageErrors.email}
+                    </div>
+                )}
                 <Button
                     variant="outline"
                     className="w-full"

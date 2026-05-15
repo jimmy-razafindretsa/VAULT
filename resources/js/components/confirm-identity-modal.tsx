@@ -8,7 +8,6 @@ import { useState } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { usePage, router } from '@inertiajs/react';
-import { SharedData } from '@/types';
 import { Separator } from '@/components/ui/separator';
 
 type Props = {
@@ -18,7 +17,7 @@ type Props = {
 };
 
 export default function ConfirmIdentityModal({ isOpen, onClose, onSuccess }: Props) {
-    const { auth } = usePage<SharedData>().props;
+    const { auth } = usePage<any>().props;
     const { has_passkeys } = auth.user;
     const [authenticating, setAuthenticating] = useState(false);
 

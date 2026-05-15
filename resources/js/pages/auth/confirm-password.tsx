@@ -6,7 +6,6 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { store } from '@/routes/password/confirm';
 import { Fingerprint, Github, Chrome } from 'lucide-react';
-import { SharedData } from '@/types';
 import * as oauth from '@/routes/oauth';
 import * as passkeyRoutes from '@/routes/passkeys';
 import { useState } from 'react';
@@ -15,7 +14,7 @@ import { toast } from 'sonner';
 import { Separator } from '@/components/ui/separator';
 
 export default function ConfirmPassword() {
-    const { auth } = usePage<SharedData>().props;
+    const { auth } = usePage<any>().props;
     const { has_password, has_passkeys } = auth.user;
     const [authenticating, setAuthenticating] = useState(false);
 
